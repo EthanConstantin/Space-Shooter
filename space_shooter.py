@@ -114,8 +114,10 @@ def main():
     dead = False
     second = 0
     tod = 0
-    red = pygame.Rect(int(WIDTH*0.75), HEIGHT//2, SPACESHIP_WIDTH, SPACESHIP_HEIGHT)
-    yellow = pygame.Rect(int(WIDTH*0.25), HEIGHT//2, SPACESHIP_WIDTH, SPACESHIP_HEIGHT)
+    red = RED_SPACESHIP.get_rect()
+    red = red.move(int(WIDTH*0.75), HEIGHT//2)
+    yellow = YELLOW_SPACESHIP.get_rect()
+    yellow = yellow.move(int(WIDTH*0.25), HEIGHT//2)
     red_bullets = []
     yellow_bullets = []
     red_lives = [i for i in range(LIVES)]
