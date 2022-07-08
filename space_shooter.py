@@ -70,22 +70,22 @@ def draw_window(red, yellow, red_bullets, yellow_bullets, red_lives, yellow_live
 def handle_yellow_movement(keys_pressed, yellow, velocity):
     if keys_pressed[pygame.K_a] and yellow.x > 0:  # LEFT
         yellow.x -= velocity
-    if keys_pressed[pygame.K_d] and yellow.x + yellow.height < BORDER.x:  # RIGHT
+    if keys_pressed[pygame.K_d] and yellow.x + yellow.width < BORDER.x:  # RIGHT
         yellow.x += velocity
     if keys_pressed[pygame.K_w] and yellow.y > 0:  # UP
         yellow.y -= velocity
-    if keys_pressed[pygame.K_s] and yellow.y + yellow.width < HEIGHT:  # DOWN
+    if keys_pressed[pygame.K_s] and yellow.y + yellow.height < HEIGHT:  # DOWN
         yellow.y += velocity
 
 
 def handle_red_movement(keys_pressed, red, velocity):
     if keys_pressed[pygame.K_LEFT] and red.x > BORDER.x + BORDER.width:  # LEFT
         red.x -= velocity
-    if keys_pressed[pygame.K_RIGHT] and red.x + red.height < WIDTH:  # RIGHT
+    if keys_pressed[pygame.K_RIGHT] and red.x + red.width < WIDTH:  # RIGHT
         red.x += velocity
     if keys_pressed[pygame.K_UP] and red.y > 0:  # UP
         red.y -= velocity
-    if keys_pressed[pygame.K_DOWN] and red.y + red.width < HEIGHT:  # DOWN
+    if keys_pressed[pygame.K_DOWN] and red.y + red.height < HEIGHT:  # DOWN
         red.y += velocity
 
 
