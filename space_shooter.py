@@ -106,16 +106,27 @@ def handle_bullets(yellow_bullets, red_bullets, yellow, red):
             red_bullets.remove(bullet)
 
 
-def handle_endgame(red_lives, yellow_lives):
-    pass
+def handle_yellow_ai(red, yellow, yellow_bullets, second, ai_last_shot_time):
+    if(second-ai_last_shot_time >=1):
+        yellow_bullets.append(pygame.Rect(yellow.x, yellow.y + yellow.height//2, 10, 5))
+
+
+def handle_ai_wait(second, ai_last_shot_time):
+    if(second-ai_last_shot_time >=1):
+        return second
+    return ai_last_shot_time
+
+        
+
 
 def main():
     # Drawing the ships on the window
     dead = False
     second = 0
     tod = 0
+    ai_last_shot_time = 0
     red = RED_SPACESHIP.get_rect()
-    red = red.move(int(WIDTH*0.75), HEIGHT//2)
+    red = red.move(int(WIDTH*0.75), HEIGHT//1.1)
     yellow = YELLOW_SPACESHIP.get_rect()
     yellow = yellow.move(int(WIDTH*0.25), HEIGHT//2)
     red_bullets = []
@@ -131,6 +142,8 @@ def main():
             dead = True
         else:
             dead = False
+        handle_yellow_ai(red, yellow, yellow_bullets, second, ai_last_shot_time)
+        ai_last_shot_time = handle_ai_wait(second, ai_last_shot_time)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -160,6 +173,7 @@ def main():
             if second > tod+5:
                 red_lives = [i for i in range(LIVES)]
                 yellow_lives = [i for i in range(LIVES)]
+
 
         draw_window(red, yellow, red_bullets, yellow_bullets, red_lives, yellow_lives, dead)
     pygame.quit()
