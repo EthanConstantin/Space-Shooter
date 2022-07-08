@@ -48,8 +48,8 @@ HEART = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "heart.p
 def draw_window(red, yellow, red_bullets, yellow_bullets, red_lives, yellow_lives, dead):
     WIN.blit(SPACE, (0, 0))
     pygame.draw.rect(WIN, BLACK, BORDER)
-    WIN.blit(YELLOW_SPACESHIP, (yellow.x, yellow.y))
-    WIN.blit(RED_SPACESHIP, (red.x, red.y))
+    WIN.blit(YELLOW_SPACESHIP, yellow)
+    WIN.blit(RED_SPACESHIP, red)
 
     for bullet in red_bullets:
         WIN.blit(RED_BULLET, (bullet.x, bullet.y))
