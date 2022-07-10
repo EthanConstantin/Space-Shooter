@@ -162,7 +162,7 @@ def handle_ai_lvl2(yellow, yellow_bullets, second, ai_last_shot_time, velocity, 
 
         # Making the ship "bounce" off the walls
         if yellow.x <= 0:
-            random_move[0] == 2
+            random_move[0] = 2
         elif yellow.x + yellow.width >= BORDER.x:
             yellow.x -= velocity
         elif yellow.y <= 0:
