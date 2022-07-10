@@ -235,7 +235,7 @@ def main():
                 if event.key == pygame.K_LCTRL and not ai:
                     soundObj.play()
                     yellow_bullets.append(pygame.Rect(yellow.x, yellow.y + yellow.height//2, 10, 5))
-                if event.key == pygame.K_RCTRL:
+                if event.key == pygame.K_RCTRL or event.key == pygame.K_SPACE:
                     red_bullets.append(pygame.Rect(red.x, red.y + red.height//2, 10, 5))
 
             if event.type == RED_HIT:
