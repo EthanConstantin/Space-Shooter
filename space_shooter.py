@@ -6,6 +6,8 @@ pygame.mixer.init()
 
 FPS = 165
 
+# Thanks to misha
+
 FIRE_RATE = 0.215  # Fire a bullet every 0.215 seconds
 
 # Window you play on
