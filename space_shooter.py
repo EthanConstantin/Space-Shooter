@@ -4,17 +4,160 @@ import random
 from screeninfo import get_monitors
 pygame.mixer.init()
 
-FPS = 167
+FPS = 165
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 FIRE_RATE = 0.215  # Fire a bullet every 0.215 seconds
 
 # Window you play on
 # WIDTH = 1350
-WIDTH = [i.width for i in get_monitors()]
-WIDTH = WIDTH[-1]
+WIDTH = [i.width for i in get_monitors()][-1]
 # HEIGHT = WIDTH // 1.77777777
-HEIGHT = [i.height for i in get_monitors()]
-HEIGHT = HEIGHT[-1]
+HEIGHT = [i.height for i in get_monitors()][-1]
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Space Game")
 
@@ -23,12 +166,6 @@ VELOCITY = (WIDTH // 129) // (FPS / 60)
 BULLET_VELOCITY = (WIDTH // 90) // (FPS / 60)
 
 LIVES = 5
-
-# Custom events
-YELLOW_HIT = pygame.USEREVENT + 1
-RED_HIT = pygame.USEREVENT + 2
-RED_DEAD = pygame.USEREVENT + 3
-YELLOW_DEAD = pygame.USEREVENT + 4
 
 # RGB colors
 WHITE = (255, 255, 255)
@@ -41,7 +178,7 @@ BORDER = pygame.Rect(WIDTH // 2 - 5, 0, 10, HEIGHT)
 
 # Loading in sounds
 bullet_sound = pygame.mixer.Sound(os.path.join("Assets", "Assets_Gun+Silencer.mp3"))
-bullet_sound.set_volume(0.1)
+bullet_sound.set_volume(0.02)
 
 # Loading in models
 SPACESHIP_WIDTH, SPACESHIP_HEIGHT = WIDTH // 15, HEIGHT // 12.5
@@ -50,7 +187,26 @@ YELLOW_SPACESHIP = pygame.transform.scale(
 RED_SPACESHIP = pygame.transform.scale(
     pygame.image.load(os.path.join("Assets", "red_spaceship.png")), (SPACESHIP_HEIGHT, SPACESHIP_WIDTH))
 SPACE = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "space_background.jpg")), (WIDTH, HEIGHT))
-QUIT_BTN = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "Quit_btn.jpg")), (100, 31))
+
+# Loading in buttons
+QUIT_BTN = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "Quit_btn.png")), (100, 31))
+
+BUTTON_WIDTH, BUTTON_HEIGHT = 91, 62
+BUTTON_1 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "button_1.png")),
+                                  (BUTTON_WIDTH, BUTTON_HEIGHT))
+BUTTON_2 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "button_2.png")),
+                                  (BUTTON_WIDTH, BUTTON_HEIGHT))
+BUTTON_3 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "button_3.png")),
+                                  (BUTTON_WIDTH, BUTTON_HEIGHT))
+BUTTON_4 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "button_4.png")),
+                                  (BUTTON_WIDTH, BUTTON_HEIGHT))
+BUTTON_5 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "button_5.png")),
+                                  (BUTTON_WIDTH, BUTTON_HEIGHT))
+BUTTON_6 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "button_6.png")),
+                                  (BUTTON_WIDTH, BUTTON_HEIGHT))
+BUTTON_7 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "button_7.png")),
+                                  (BUTTON_WIDTH, BUTTON_HEIGHT))
+ai_buttons = [BUTTON_1, BUTTON_2, BUTTON_3, BUTTON_4, BUTTON_5, BUTTON_6, BUTTON_7]
 
 BULLET_HEIGHT = int(WIDTH * 0.0105)
 BULLET_WIDTH = int(BULLET_HEIGHT * 1.5455)
@@ -66,7 +222,7 @@ HEART = pygame.transform.scale(pygame.image.load(os.path.join(
     "Assets", "heart.png")), (HEART_DIMENSIONS, HEART_DIMENSIONS))
 
 
-def draw_window(red, yellow, QUIT, red_bullets, yellow_bullets, red_lives, yellow_lives, dead):
+def draw_window(red, yellow, QUIT, red_bullets, yellow_bullets, red_lives, yellow_lives, dead, pause, buttons):
     WIN.blit(SPACE, (0, 0))
     pygame.draw.rect(WIN, BLACK, BORDER)
     WIN.blit(YELLOW_SPACESHIP, yellow)
@@ -84,10 +240,19 @@ def draw_window(red, yellow, QUIT, red_bullets, yellow_bullets, red_lives, yello
     for idi, i in enumerate(yellow_lives):
         WIN.blit(HEART, (idi * HEART_DIMENSIONS + WIDTH // 63.33, 15))
 
+    if pause:
+        WIN.fill(WHITE)
+
+        for idi, i in enumerate(ai_buttons):
+            x = BUTTON_WIDTH*1.5*(len(ai_buttons)/2) + idi*BUTTON_WIDTH*1.5
+            y = int(HEIGHT/2 - BUTTON_HEIGHT/2)
+            buttons.append(i.get_rect().move(x, y))
+            WIN.blit(i, (x, y))
+
+        WIN.blit(QUIT_BTN, QUIT)
+
     if dead:
         WIN.blit(GAME_OVER, (0, 0))
-
-    WIN.blit(QUIT_BTN, QUIT)
 
     pygame.display.update()
 
@@ -152,9 +317,9 @@ def ai_lvl1(yellow, yellow_bullets, second, ai_last_shot_time, velocity, move_os
         if second - ai_last_shot_time[0] >= 0.75:  # If it's been more than 0.75 seconds since the ai last shot
             move_oscillator[0] = 1
         # Moving the ship up and down periodically
-        if move_oscillator[0] == 0:
+        if move_oscillator[0] == 0 and yellow.y > 0:
             yellow.y -= velocity // 1.5
-        elif move_oscillator[0] == 1:
+        elif move_oscillator[0] == 1 and yellow.y + yellow.height < HEIGHT:
             yellow.y += velocity // 1.5
 
 
@@ -217,9 +382,9 @@ def ai_lvl_4(yellow, yellow_bullets, red, second, dead,
             ai_last_shot_time[0] = second  # Reset timer
             yellow_shoot(yellow, yellow_bullets)
         if second - ai_last_move_time[0] >= 0.3:
-            if 0 - SPACESHIP_HEIGHT // 2 > red.y - yellow.y:
+            if 0 - SPACESHIP_HEIGHT // 2 > red.y - yellow.y and yellow.y > 0:
                 yellow.y -= velocity * 0.8
-            if red.y - yellow.y >= SPACESHIP_HEIGHT // 2:
+            if red.y - yellow.y >= SPACESHIP_HEIGHT // 2 and yellow.y + yellow.height < HEIGHT:
                 yellow.y += velocity * 0.8
             if 0 - SPACESHIP_HEIGHT < red.y - yellow.y < SPACESHIP_HEIGHT:
                 ai_last_move_time[0] = second
@@ -247,9 +412,9 @@ def ai_lvl_5(yellow, yellow_bullets, red, red_bullets, second, dead,
             ai_last_shot_time[0] = second  # Reset timer
             yellow_shoot(yellow, yellow_bullets)
         if not bullet_near and second - ai_last_move_time[0] >= 0.3:
-            if 0 - SPACESHIP_HEIGHT // 2 > red.y - yellow.y:
+            if 0 - SPACESHIP_HEIGHT // 2 > red.y - yellow.y and yellow.y > 0:
                 yellow.y -= velocity * 0.8
-            if red.y - yellow.y >= SPACESHIP_HEIGHT // 2:
+            if red.y - yellow.y >= SPACESHIP_HEIGHT // 2 and yellow.y + yellow.height < HEIGHT:
                 yellow.y += velocity * 0.8
             if 0 - SPACESHIP_HEIGHT < red.y - yellow.y < SPACESHIP_HEIGHT:
                 ai_last_move_time[0] = second
@@ -276,9 +441,9 @@ def ai_lvl_6(yellow, yellow_bullets, red, red_bullets, second, dead,
             ai_last_shot_time[0] = second  # Reset timer
             yellow_shoot(yellow, yellow_bullets)
         if not bullet_near and second - ai_last_move_time[0] >= 0.2:
-            if 0 - SPACESHIP_HEIGHT // 2 > red.y - yellow.y:
+            if 0 - SPACESHIP_HEIGHT // 2 > red.y - yellow.y and yellow.y > 0:
                 yellow.y -= velocity  # UP
-            if red.y - yellow.y >= SPACESHIP_HEIGHT // 2:
+            if red.y - yellow.y >= SPACESHIP_HEIGHT // 2 and yellow.y + yellow.height < HEIGHT:
                 yellow.y += velocity  # DOWN
             if 0 - SPACESHIP_HEIGHT < red.y - yellow.y < SPACESHIP_HEIGHT:
                 ai_last_move_time[0] = second
@@ -304,10 +469,14 @@ def ai_lvl_7(yellow, yellow_bullets, red, red_bullets, second, dead,
                             if (0 > yellow.y + (SPACESHIP_HEIGHT // 2) - bullet.y + (
                             BULLET_HEIGHT // 2) > 1 - SPACESHIP_HEIGHT * 1.2):
                                 bullet_near_2_up = True
-                    # if (0 > yellow.y + (SPACESHIP_HEIGHT // 2) - bullet.y + (
-                    #         BULLET_HEIGHT // 2) > 1 - SPACESHIP_HEIGHT * 1.2) \
-                    #         and yellow.y > 0 and not bullet_near_2_down:
-                    #     yellow.y -= VELOCITY  # UP
+                    if bullet_near_2_down and yellow.y > 0:
+                        yellow.y -= VELOCITY  # UP
+                    if bullet_near_2_up and yellow.y + yellow.height < HEIGHT:
+                        yellow.y -= VELOCITY  # DOWN
+                    elif (0 > yellow.y + (SPACESHIP_HEIGHT // 2) - bullet.y + (
+                            BULLET_HEIGHT // 2) > 1 - SPACESHIP_HEIGHT * 1.2) \
+                            and yellow.y > 0:
+                        yellow.y -= VELOCITY  # UP
                     #     bullet_near_1 = True
                     # elif (0 <= yellow.y + (SPACESHIP_HEIGHT // 2) - bullet.y + (
                     #         BULLET_HEIGHT // 2) < SPACESHIP_HEIGHT * 1.2) \
@@ -319,9 +488,9 @@ def ai_lvl_7(yellow, yellow_bullets, red, red_bullets, second, dead,
             yellow_shoot(yellow, yellow_bullets)
         if not bullet_near_1 and not bullet_near_2_up and not bullet_near_2_down\
                 and second - ai_last_move_time[0] >= 0.2:
-            if 0 - SPACESHIP_HEIGHT // 2 > red.y - yellow.y:
+            if 0 - SPACESHIP_HEIGHT // 2 > red.y - yellow.y and yellow.y > 0:
                 yellow.y -= velocity
-            if red.y - yellow.y >= SPACESHIP_HEIGHT // 2:
+            if red.y - yellow.y >= SPACESHIP_HEIGHT // 2 and yellow.y + yellow.height < HEIGHT:
                 yellow.y += velocity
             if 0 - SPACESHIP_HEIGHT < red.y - yellow.y < SPACESHIP_HEIGHT:
                 ai_last_move_time[0] = second
@@ -342,26 +511,23 @@ def main():
     ai_last_shot_time = [0]
     ai_last_move_time = [0]
     move_oscillator = [0]
-    ai_lvl = 7
+    ai_lvl = 6
     ai = True
-    # Integrate this into the game itself, not console input:
-    # english_to_bool = {"yes": True, "no": False}
-    # ai = english_to_bool[input("Would you like to turn on the ai? ").strip().lower()]
-    # if ai:
-    #     ai_lvl = int(input("What level ai do you want? (There are only 2 levels) ").strip())
-    #     while 1 > ai_lvl > 4:
-    #         ai_lvl = int(input("Make sure to only choose a level in between 1 and 2 ").strip())
 
     # Drawing the hit_box for the ships
-    red = RED_SPACESHIP.get_rect().move(int(WIDTH * 0.75), HEIGHT // 2)
-    yellow = YELLOW_SPACESHIP.get_rect().move(int(WIDTH * 0.25), HEIGHT // 2)
+    red = RED_SPACESHIP.get_rect().move(int(WIDTH*0.75-SPACESHIP_WIDTH/2), HEIGHT // 2)
+    yellow = YELLOW_SPACESHIP.get_rect().move(int(WIDTH * 0.25-SPACESHIP_WIDTH/2), HEIGHT // 2)
 
     QUIT = QUIT_BTN.get_rect().move(WIDTH // 2 - 50, 10)
+
+    buttons = []
 
     red_hit = [False]
     yellow_hit = [False]
     red_dead = [False]
     yellow_dead = [False]
+
+    pause = False
 
     red_bullets = []
     yellow_bullets = []
@@ -382,7 +548,7 @@ def main():
         else:
             dead = False
 
-        if ai:
+        if ai and not pause:
             if ai_lvl == 1:
                 ai_lvl1(yellow, yellow_bullets, second, ai_last_shot_time, VELOCITY, move_oscillator, dead)
             elif ai_lvl == 2:
@@ -408,15 +574,44 @@ def main():
             if event.type == pygame.QUIT:
                 raise SystemExit
             # Shooting
-            if event.type == pygame.KEYDOWN and not dead:
+            if event.type == pygame.KEYDOWN and not dead and not pause:
                 if event.key == pygame.K_LCTRL and not ai:
                     yellow_shoot(yellow, yellow_bullets)
                 if event.key == pygame.K_RCTRL and second - red_last_shot_time >= FIRE_RATE:
                     red_last_shot_time = second
                     red_shoot(red, red_bullets)
+                if event.key == pygame.K_p or event.key == pygame.K_ESCAPE:
+                    pause = True
 
-        if QUIT.collidepoint(pos) and pygame.mouse.get_pressed()[0]:
-            raise SystemExit
+        if pygame.mouse.get_pressed()[0] and pause:
+            if QUIT.collidepoint(pos):
+                raise SystemExit
+            # for i in range(7):
+            #     if buttons[i-1].collidepoint(pos):
+            #         ai_lvl = i
+            #         dead = True
+            if buttons[0].collidepoint(pos):
+                ai_lvl = 1
+                dead = True
+            if buttons[1].collidepoint(pos):
+                ai_lvl = 2
+                dead = True
+            if buttons[2].collidepoint(pos):
+                ai_lvl = 3
+                dead = True
+            if buttons[3].collidepoint(pos):
+                ai_lvl = 4
+                dead = True
+            if buttons[4].collidepoint(pos):
+                ai_lvl = 5
+                dead = True
+            if buttons[5].collidepoint(pos):
+                ai_lvl = 6
+                dead = True
+            if buttons[6].collidepoint(pos):
+                ai_lvl = 7
+                dead = True
+            pause = False
 
         if red_hit[0]:
             del red_lives[-1]
@@ -425,13 +620,13 @@ def main():
             del yellow_lives[-1]
             yellow_hit[0] = False
 
-        if not dead:
+        if not dead and not pause:
             bullets(yellow_bullets, red_bullets, yellow, red, red_hit, yellow_hit)
             keys_pressed = pygame.key.get_pressed()
             red_movement(keys_pressed, red, VELOCITY)
             if not ai:
                 yellow_movement(keys_pressed, yellow, VELOCITY)
-        else:
+        elif dead:
             if GAME_OVER.get_rect().collidepoint(pos) and pygame.mouse.get_pressed()[0]:  # Left click
                 red_lives = [i for i in range(LIVES)]
                 yellow_lives = [i for i in range(LIVES)]
@@ -440,7 +635,7 @@ def main():
                 red.x, red.y = int(WIDTH * 0.75), HEIGHT // 2
                 yellow.x, yellow.y = int(WIDTH * 0.25), HEIGHT // 2
                 dead = False
-        draw_window(red, yellow, QUIT, red_bullets, yellow_bullets, red_lives, yellow_lives, dead)
+        draw_window(red, yellow, QUIT, red_bullets, yellow_bullets, red_lives, yellow_lives, dead, pause, buttons)
 
 
 if __name__ == "__main__":
