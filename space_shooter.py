@@ -3,6 +3,7 @@ import os
 import random
 from screeninfo import get_monitors
 pygame.mixer.init()
+pygame.init()
 
 FPS = 165
 
@@ -17,6 +18,8 @@ WIDTH = [i.width for i in get_monitors()][-1]
 HEIGHT = [i.height for i in get_monitors()][-1]
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Space Game")
+
+font = pygame.font.Font(None,30)
 
 # Variables that scale with aspect ratio and fps
 VELOCITY = (WIDTH // 129) // (FPS / 60)
@@ -66,7 +69,7 @@ BUTTON_7 = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "butt
 ai_buttons = [BUTTON_1, BUTTON_2, BUTTON_3, BUTTON_4, BUTTON_5, BUTTON_6, BUTTON_7]
 
 BULLET_HEIGHT = int(WIDTH * 0.0105)
-BULLET_WIDTH = int(BULLET_HEIGHT * 1.5455)
+BULLET_WIDTH = int(BULLET_HEIGHT * 1.5545)
 YELLOW_BULLET = pygame.transform.scale(pygame.image.load(os.path.join(
     "Assets", "yellow_ship_bullet.png")), (BULLET_WIDTH, BULLET_HEIGHT))
 RED_BULLET = pygame.transform.scale(pygame.image.load(os.path.join(
@@ -370,7 +373,6 @@ def main():
     move_oscillator = [0]
     ai_lvl = 6
     ai = True
-
     # Drawing the hit_box for the ships
     red = RED_SPACESHIP.get_rect().move(int(WIDTH*0.75-SPACESHIP_WIDTH/2), HEIGHT // 2)
     yellow = YELLOW_SPACESHIP.get_rect().move(int(WIDTH * 0.25-SPACESHIP_WIDTH/2), HEIGHT // 2)
@@ -392,6 +394,7 @@ def main():
     yellow_lives = [i for i in range(LIVES)]
     second = 0  # Time
     red_last_shot_time = 0
+    yellow_last_shot_time = 0
     clock = pygame.time.Clock()
 
     # Main game loop
@@ -404,6 +407,7 @@ def main():
             dead = True
         else:
             dead = False
+
 
         if ai and not pause:
             if ai_lvl == 1:
@@ -432,7 +436,8 @@ def main():
                 raise SystemExit
             # Shooting
             if event.type == pygame.KEYDOWN and not dead and not pause:
-                if event.key == pygame.K_LCTRL and not ai:
+                if event.key == pygame.K_LCTRL and not ai and second - yellow_last_shot_time >= FIRE_RATE:
+                    yellow_last_shot_time = second
                     yellow_shoot(yellow, yellow_bullets)
                 if event.key == pygame.K_RCTRL and second - red_last_shot_time >= FIRE_RATE:
                     red_last_shot_time = second
@@ -441,6 +446,7 @@ def main():
                     pause = True
 
         if pygame.mouse.get_pressed()[0] and pause:
+            pos = pygame.mouse.get_pos()
             if QUIT.collidepoint(pos):
                 raise SystemExit
             # for i in range(7):
